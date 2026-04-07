@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Hearts Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: pink;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            font-family: sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .heart {
+            position: absolute;
+            color: red;
+            font-size: 24px;
+            animation: fall linear infinite;
+        }
+        
+        button {
+            position: absolute;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 5px;
+            z-index: 1100;
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: sans-serif;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-10vh); opacity: 1; }
+            100% { transform: translateY(110vh); opacity: 0; }
+        }
+        
+        #button1 { top: 50%; left: 50%; transform: translateX(-50%); }
+
+        .question {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(20px, 6vw, 28px);
+            font-weight: bold;
+            color: #3a003a;
+            z-index: 999;
+            pointer-events: none;
+            text-align: center;
+            padding: 0 15px;
+            max-width: 90vw;
+        }
+
+        /* Envelope / message styles - closed -> open behavior */
+        .envelope {
+            position: absolute;
+            left: 50%;
+            top: 55%;
+            transform: translate(-50%, -50%);
+            width: min(85vw, 420px);
+            max-width: 420px;
+            min-width: 240px;
+            background: linear-gradient(180deg,#fff,#ffeef6);
+            border: 2px solid #e0b8d6;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+            z-index: 1200;
+            cursor: pointer;
+            text-align: center;
+            user-select: none;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .envelope .closedView {
+            font-size: 48px;
+            color: #c6006f;
+            line-height: 1;
+            display: block;
+            padding: 10px 0;
+        }
+        
+        .envelope .innerMessage {
+            display: none;
+            color: #3a003a;
+            font-size: 16px;
+            line-height: 1.4;
+            padding: 6px 8px 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .envelope .innerSig {
+            margin-top: 12px;
+            font-size: 20px;
+            color: red;
+            display: inline-block;
+        }
+
+        .envelope.opened .closedView { display: none; }
+        .envelope.opened .innerMessage { display: block; animation: popIn 300ms cubic-bezier(.2,.9,.3,1); }
+
+        .envelope.pop { animation: popIn 400ms cubic-bezier(.2,.9,.3,1); }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -40%) scale(0.92); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.02); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .final-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #3a003a;
+            z-index: 1300;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 90vw;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .final-message p {
+            margin: 0;
+            font-size: clamp(16px, 4vw, 20px);
+            padding: 0 10px;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+        
+        .final-message .gif-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            width: 100%;
+        }
+        
+        .final-message img {
+            width: 120px;
+            height: auto;
+            max-width: 35vw;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 480px) {
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .question {
+                top: 30%;
+                font-size: clamp(16px, 5vw, 24px);
+            }
+            
+            .envelope {
+                top: 50%;
+                width: min(88vw, 360px);
+            }
+            
+            .envelope .innerMessage {
+                font-size: 14px;
+                max-height: 200px;
+            }
+            
+            .final-message img {
+                width: 100px;
+                max-width: 40vw;
+            }
+        }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // create centered question
+        const q = document.createElement('div');
+        q.className = 'question';
+        q.textContent = ' Will you love me forever ? ';
+        document.body.insertBefore(q, document.body.firstChild);
+
+        const btn1 = document.getElementById('button1');
+        let clickCount = 0;
+
+        // Function to create a No button that moves on click
+        function createNoButton() {
+            const noBtn = document.createElement('button');
+            noBtn.textContent = 'No';
+            noBtn.style.position = 'absolute';
+            noBtn.style.top = '55%';
+            noBtn.style.left = '65%';
+            noBtn.style.transform = 'translateX(-50%)';
+            noBtn.style.padding = '8px 16px';
+            noBtn.style.fontSize = '16px';
+            noBtn.style.cursor = 'pointer';
+            noBtn.style.backgroundColor = 'white';
+            noBtn.style.border = '2px solid black';
+            noBtn.style.borderRadius = '5px';
+            noBtn.style.zIndex = '1100';
+            noBtn.classList.add('no-button');
+            
+            noBtn.onclick = (e) => {
+                e.stopPropagation();
+                const maxX = Math.max(0, window.innerWidth - noBtn.offsetWidth);
+                const maxY = Math.max(0, window.innerHeight - noBtn.offsetHeight);
+                noBtn.style.left = Math.random() * maxX + 'px';
+                noBtn.style.top = Math.random() * maxY + 'px';
+                noBtn.style.transform = 'none';
+            };
+            
+            document.body.appendChild(noBtn);
+            return noBtn;
+        }
+
+        let currentNoBtn = createNoButton();
+
+        if (btn1) {
+            btn1.textContent = 'Yes';
+            btn1.onclick = () => {
+                clickCount++;
+                if (currentNoBtn) {
+                    currentNoBtn.remove();
+                }
+                currentNoBtn = createNoButton();
+                if (clickCount === 1) {
+                    q.textContent = ' You think you can beat the amount of love i have for you ? ';
+                } else if (clickCount === 2) {
+                    q.textContent = ' You know that you\'re the love of my life and i love you more than anything else ? ';
+                } else if (clickCount === 3) {
+                    q.textContent = ' Can i tell you one thing ';
+                } else if (clickCount === 4) {
+                    spawnEnvelope(' You are the love of my life and i love you more than anything in this world, i want you to know that im here for you always through thick and thin and ill always be by your side even if you were wrong ( which you will never be cuz even if you are i know you right ) simply because you are my wife and the love of my life, i loved you once and ill always keep on loving you till i die, Thank you for being the amazing wife you are, I know you love that mold on your face and i want you to know that im sharing that love with you, i love your voice i love those calls we have and i love how you laugh in those calls and i love those pretty eyes of yours and i love how energized you are whenever you talk, i love how caring you are and how you switch up to that different character in the chat and how you get comfortable with me, and most importantly i have to thank you for the best 4 months of my life, I LOVE YOU BUBS AND ILL ALWAYS KEEP ON LOVING YOU MORE AND MORE   ❤️');
+                }
+            };
+        }
+
+        let envelopeShown = false;
+        function spawnEnvelope(messageText = "A small message for you") {
+            if (envelopeShown) return;
+            envelopeShown = true;
+
+            if (q && q.remove) q.remove();
+            if (btn1 && btn1.remove) btn1.remove();
+            if (currentNoBtn && currentNoBtn.remove) currentNoBtn.remove();
+
+            const env = document.createElement('div');
+            env.className = 'envelope pop closed';
+            env.setAttribute('role', 'button');
+            env.setAttribute('aria-label', 'closed envelope');
+
+            const closedView = document.createElement('div');
+            closedView.className = 'closedView';
+            closedView.textContent = '📩';
+
+            const innerMsg = document.createElement('div');
+            innerMsg.className = 'innerMessage';
+            innerMsg.textContent = messageText;
+
+            const sig = document.createElement('div');
+            sig.className = 'innerSig';
+            sig.textContent = '❤️';
+
+            env.appendChild(closedView);
+            env.appendChild(innerMsg);
+            env.appendChild(sig);
+            document.body.appendChild(env);
+
+            env.addEventListener('click', function openEnvelope() {
+                if (env.classList.contains('opened')) return;
+                env.classList.add('opened');
+                env.setAttribute('aria-label', 'opened envelope');
+                
+                env.addEventListener('click', function transitionToNewButton() {
+                    setTimeout(() => {
+                        env.remove();
+                        const newBtn = document.createElement('button');
+                        newBtn.textContent = 'Yes';
+                        newBtn.style.position = 'absolute';
+                        newBtn.style.top = '50%';
+                        newBtn.style.left = '50%';
+                        newBtn.style.transform = 'translateX(-50%)';
+                        newBtn.style.padding = '8px 16px';
+                        newBtn.style.fontSize = '16px';
+                        newBtn.style.cursor = 'pointer';
+                        newBtn.style.backgroundColor = 'white';
+                        newBtn.style.border = '2px solid black';
+                        newBtn.style.borderRadius = '5px';
+                        newBtn.style.zIndex = '1100';
+                        document.body.appendChild(newBtn);
+                        
+                        let newNoBtn = createNoButton();
+                        
+                        const newQ = document.createElement('div');
+                        newQ.className = 'question';
+                        newQ.textContent = ' Do you love me infinitly ? ';
+                        document.body.insertBefore(newQ, document.body.firstChild);
+                        let newClickCount = 0;
+                        
+                        newBtn.onclick = () => {
+                            newClickCount++;
+                            if (newNoBtn) {
+                                newNoBtn.remove();
+                            }
+                            newNoBtn = createNoButton();
+                            if (newClickCount === 1) {
+                                newQ.textContent = ' are you 100% sure ? ';
+                            } else if (newClickCount === 2) {
+                                newBtn.remove();
+                                if (newNoBtn) newNoBtn.remove();
+                                newQ.remove();
+                                const finalDiv = document.createElement('div');
+                                finalDiv.className = 'final-message';
+                                finalDiv.innerHTML = `
+                                    <p>Describe your love to me in the whatsapp chat so i can know you reached the end, I love you</p>
+                                    <div class="gif-container">
+                                        <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTBubGlnY21mdm02c2g0anI1bHF2enNjNmpydnNhZTRwMHNxNWRhbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t8xgPfC5oNIRMrNooe/giphy.gif" alt="Love GIF">
+                                        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHQ2Znp4cHQ1cWhubm5oZHJxa21icDduY2R5cGttcDd1eW5mOGxjcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xR5cPyPoL5HVXSphqA/giphy.gif" alt="Love GIF 2">
+                                    </div>
+                                `;
+                                document.body.appendChild(finalDiv);
+                            }
+                        };
+                    }, 300);
+                }, { once: true });
+            }, { once: true });
+        }
+    });
+    </script>
+</head>
+<body>
+    <script>
+        // Create falling hearts
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+        setInterval(createHeart, 300);
+
+        function moveButton(button) {
+            const maxX = window.innerWidth - button.offsetWidth;
+            const maxY = window.innerHeight - button.offsetHeight;
+            button.style.left = Math.random() * maxX + 'px';
+            button.style.top = Math.random() * maxY + 'px';
+        }
+    </script>
+    <button id="button1"></button>
+</body>
+</html>
